@@ -1,0 +1,51 @@
+запуск ваулт сервера из указанного места
+vault server -config=E:\aGitProjectReposito\vault_demo\vault\config\config.json
+
+
+vault operator init
+
+Unseal Key 1: AUeMMR/65xgU8kNn2vJpDIZxqsPS19KrwYQCKvhmCTeD
+Unseal Key 2: 2ptRQx/0qpYe5kMgnstOqNae1Rl3e4kP6lxdN8Md1n0o
+Unseal Key 3: 6kdu59492IWOY7XtpUU+fUWFhGJBRhBeCfFPcHulqWNA
+Unseal Key 4: uapOr73KStMGAOoQ35HN/GKMrnYNRQmK4RXgduKhZ7ME
+Unseal Key 5: 2xGGZMUG2oufjMbBGjJkJBv51OCmV2SRPXQ9triFcvI9
+
+Initial Root Token: s.Zq0CXqOLbvHwwPrQDyU983Tk
+
+dev config:
+{
+  "app.test-config.password": "demopassword",
+  "app.test-config.roles": "admin,user,incognito",
+  "app.test-config.url": "http://vault-test.url",
+  "app.test-config.url-possible-type.http": "http",
+  "app.test-config.url-possible-type.https": "https",
+  "app.test-config.url-possible-type.pcp": "tcp",
+  "app.test-config.username": "demouser",
+  "spring.datasource.url": "jdbc:postgresql://localhost:5432/vault_demo",
+  "spring.datasource.username":"postgres",
+  "spring.datasource.password":"postgres",
+  "spring.jpa.properties.hibernate.temp.use_jdbc_metadata_defaults":"false",
+  "spring.jpa.hibernate.ddl-aut":"none"
+}
+
+prod config:
+{
+  "app.test-config.password": "prodPassword",
+  "app.test-config.roles": "adminProd,userProd,incognitoProd",
+  "app.test-config.url": "http://vault-prod.url",
+  "app.test-config.url-possible-type.http": "httpProd",
+  "app.test-config.url-possible-type.https": "httpsProd",
+  "app.test-config.url-possible-type.pcp": "tcpProd",
+  "app.test-config.username": "prodUser"
+}
+
+подключаем движек баз данных
+
+vault secrets enable database
+
+vault write database/config/my-postgresql-database plugin_name=postgresql-database-plugin allowed_roles="my-role" connection_url="postgresql://{{username}}:{{password}}@localhost:5432/vault_demo?sslmode=disable" username="postgres" password="postgres"
+
+vault write database/roles/my-role db_name=my-postgresql-database creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" default_ttl="1h" max_ttl="24h"
+
+vault read database/creds/my-role
+
