@@ -39,6 +39,28 @@ prod config:
   "app.test-config.username": "prodUser"
 }
 
+
+
+developer-policy:
+
+path "vault_demo/*" {
+  capabilities = ["read", "list", "update", "create", "delete"]
+}
+
+path "vault_demo/vault_api/prod*" {
+  capabilities = ["deny"]
+}
+
+path "vault_demo/*" {
+  capabilities = ["read", "list", "update", "create", "delete"]
+}
+
+path "vault_demo/+/prod" {
+  capabilities = ["deny"]
+}
+
+
+
 подключаем движек баз данных
 
 vault secrets enable database
@@ -48,4 +70,15 @@ vault write database/config/my-postgresql-database plugin_name=postgresql-databa
 vault write database/roles/my-role db_name=my-postgresql-database creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" default_ttl="1h" max_ttl="24h"
 
 vault read database/creds/my-role
+
+
+
+create 2 user with different policies:
+
+vault auth enable userpass
+
+vault write auth/userpass/users/art password=bart policies=developer-policy
+
+vault_demo>vault write auth/userpass/users/dev password=dev policies=developer2-policy
+
 
