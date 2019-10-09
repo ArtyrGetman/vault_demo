@@ -9,21 +9,28 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.AbstractEnvironment;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.MapPropertySource;
+
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 @SpringBootApplication
 @RequiredArgsConstructor
 @Log4j2
 public class VaultApplication implements CommandLineRunner {
 
-    @Autowired
-    private VaultUserRepository vaultUserRepository;
+    private final VaultUserRepository vaultUserRepository;
     private final SecurityProperties securityProperties;
+
     @Value("${app.test-config.password}")
     String password;
     @Value("#{'${app.test-config.roles}'.split(',')}")
     List<String> roles;
-
 
     public static void main(String[] args) {
         SpringApplication.run(VaultApplication.class, args);
@@ -47,6 +54,5 @@ public class VaultApplication implements CommandLineRunner {
         log.info("----------------------------------------");
         log.info("--------------------------DB BLOCK---------------------------");
         log.info(vaultUserRepository.findAll());
-
     }
 }
