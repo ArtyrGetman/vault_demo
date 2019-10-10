@@ -1,7 +1,6 @@
-запуск ваулт сервера из указанного места
+---запуск ваулт сервера из указанного места
 vault server -config=E:\aGitProjectReposito\vault_demo\vault\config\config.json
-
-
+---
 vault operator init
 
 Unseal Key 1: AUeMMR/65xgU8kNn2vJpDIZxqsPS19KrwYQCKvhmCTeD
@@ -12,7 +11,8 @@ Unseal Key 5: 2xGGZMUG2oufjMbBGjJkJBv51OCmV2SRPXQ9triFcvI9
 
 Initial Root Token: s.Zq0CXqOLbvHwwPrQDyU983Tk
 
-
+---add audit :
+vault audit enable file file_path=E:/aGitProjectReposito/vault_demo/vault/logs/audit.log
 
 dev config:
 {
@@ -53,6 +53,8 @@ path "vault_demo/vault_api/prod*" {
   capabilities = ["deny"]
 }
 
+developer2-policy:
+
 path "vault_demo/*" {
   capabilities = ["read", "list", "update", "create", "delete"]
 }
@@ -67,11 +69,16 @@ vault token create -policy=developer-policy
 
 s.VliZbBg0z0fAdpswgMc6cUUv
 
+--- создаем юзеров
+create 2 user with different policies:
+
+vault auth enable userpass
+vault write auth/userpass/users/art password=bart policies=developer-policy
+vault_demo>vault write auth/userpass/users/dev password=dev policies=developer2-policy
 
 
-подключаем движек баз данных
 
-
+---подключаем движек баз данных
 ----------------------------------
 Приложения запрашивают у Vault учетные данные,
  а не задают их в качестве переменных среды.
@@ -81,29 +88,30 @@ s.VliZbBg0z0fAdpswgMc6cUUv
 ------------------------------------------------
 vault secrets enable database
 
-vault write database/config/my-postgresql-database plugin_name=postgresql-database-plugin allowed_roles="my-role" connection_url="postgresql://{{username}}:{{password}}@localhost:5432/vault_demo?sslmode=disable" username="postgres" password="postgres"
+vault write database/config/my-postgresql-database plugin_name=postgresql-database-plugin allowed_roles="my-role","education" connection_url="postgresql://{{username}}:{{password}}@localhost:5432/vault_demo?sslmode=disable" username="postgres" password="postgres"
 
-vault write database/roles/my-role db_name=my-postgresql-database creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" default_ttl="1h" max_ttl="24h"
-
-
+-Создает роль на чтание согласно скрипта, на определенній интервал.после чего роль удаляется
+vault write database/roles/my-role db_name=my-postgresql-database creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" default_ttl="15s" max_ttl="15s"
+vault write database/roles/my-role db_name=my-postgresql-database renew_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; GRANT SELECT ON ALL TABLES IN SCHEMA public TO \"{{name}}\";" default_ttl="15s" max_ttl="15s"
+-сгенерировать новый  пасс и пароль для БД.
 vault read database/creds/my-role
 
-vault read database/roles/my-role
+vault delete database/roles/my-role
+vault list database/roles
+
+vault write database/config/my-postgresql-database plugin_name=postgresql-database-plugin allowed_roles="my-role" allowed_roles="education" connection_url="postgresql://{{username}}:{{password}}@localhost:5432/vault_demo?sslmode=disable" username="root" password="rootpassword"
+
+vault write -force database/rotate-root/my-postgresql-database
+
+vault write database/roles/education db_name=my-postgresql-database rotation_statements="ALTER USER "{{name}}" WITH PASSWORD '{{password}}';" username="vault-edu" rotation_period="15s"
+
+vault read database/roles/education
+
+
+DROP OWNED BY "v-root-my-role-Vc6kQx78eouzwcMrcqO3-1570732340";
+drop role "v-root-my-role-Vc6kQx78eouzwcMrcqO3-1570732340";
 
 
 
-create 2 user with different policies:
-
-vault auth enable userpass
-
-vault write auth/userpass/users/art password=bart policies=developer-policy
-
-vault_demo>vault write auth/userpass/users/dev password=dev policies=developer2-policy
-
-
-
-
-add audit :
-vault audit enable file file_path=E:/aGitProjectReposito/vault_demo/vault/logs/audit.log
 
 
