@@ -82,3 +82,7 @@ vault write auth/userpass/users/art password=bart policies=developer-policy
 vault_demo>vault write auth/userpass/users/dev password=dev policies=developer2-policy
 
 
+add audit :
+vault audit enable file file_path=E:/aGitProjectReposito/vault_demo/vault/logs/audit.log
+
+
