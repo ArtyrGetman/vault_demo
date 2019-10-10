@@ -12,6 +12,8 @@ Unseal Key 5: 2xGGZMUG2oufjMbBGjJkJBv51OCmV2SRPXQ9triFcvI9
 
 Initial Root Token: s.Zq0CXqOLbvHwwPrQDyU983Tk
 
+
+
 dev config:
 {
   "app.test-config.password": "demopassword",
@@ -59,6 +61,12 @@ path "vault_demo/+/prod" {
   capabilities = ["deny"]
 }
 
+create token with policy:
+
+vault token create -policy=developer-policy
+
+s.VliZbBg0z0fAdpswgMc6cUUv
+
 
 
 подключаем движек баз данных
@@ -91,6 +99,8 @@ vault auth enable userpass
 vault write auth/userpass/users/art password=bart policies=developer-policy
 
 vault_demo>vault write auth/userpass/users/dev password=dev policies=developer2-policy
+
+
 
 
 add audit :
