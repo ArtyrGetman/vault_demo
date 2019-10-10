@@ -7,3 +7,5 @@ spring.cloud.vault.kv.backend-version=1
 
 spring.cloud.vault.database.enabled=true
 spring.cloud.vault.database.role=my-role
+
+spring.application.name=vault_api;spring.cloud.vault.token=s.Zq0CXqOLbvHwwPrQDyU983Tk;spring.cloud.vault.scheme=http;spring.cloud.vault.kv.enabled=true;spring.cloud.vault.kv.backend=vault_demo;spring.cloud.vault.kv.backend-version=1;spring.cloud.vault.database.enabled=true;spring.cloud.vault.database.role=my-role
